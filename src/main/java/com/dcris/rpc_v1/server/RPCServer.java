@@ -12,6 +12,11 @@ import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * 定义更加通用的消息格式：Request 与Response格式， 从此可能调用不同的方法，与返回各种类型的数据。
+ * 使用了动态代理进行不同服务方法的Request的封装，
+ * 客户端更加松耦合，不再与特定的Service，host，port绑定
+ */
 public class RPCServer {
     public static void main(String[] args) {
         UserService userService = new UserServiceImpl();
