@@ -1,5 +1,6 @@
 package com.dcris.rpc_v3.client;
 
+
 import com.dcris.rpc_v3.common.RPCRequest;
 import com.dcris.rpc_v3.common.RPCResponse;
 import lombok.AllArgsConstructor;
@@ -9,31 +10,30 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-/**
- * 简单实现，基于java BIO
- */
 @AllArgsConstructor
-public class SimpleRPCClient implements RPCClient {
-
+public class SimpleRPCClient implements RPCClient{
     private String host;
     private int port;
 
-    @Override
-    public RPCResponse sendRequest(RPCRequest rpcRequest) {
+    // 客户端发起一次请求调用，Socket建立连接，发起请求Request，得到响应Response
+    // 这里的request是封装好的，不同的service需要进行不同的封装， 客户端只知道Service接口，需要一层动态代理根据反射封装不同的Service
+    public RPCResponse sendRequest(RPCRequest request) {
         try {
             Socket socket = new Socket(host, port);
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 
-            oos.writeObject(rpcRequest);
-            oos.flush();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
 
-            RPCResponse response = (RPCResponse) ois.readObject();
+            System.out.println(request);
+            objectOutputStream.writeObject(request);
+            objectOutputStream.flush();
+
+            RPCResponse response = (RPCResponse) objectInputStream.readObject();
+
+            //System.out.println(response.getData());
             return response;
-
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("发送请求失败");
+            System.out.println();
             return null;
         }
     }

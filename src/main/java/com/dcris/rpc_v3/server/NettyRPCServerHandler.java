@@ -1,27 +1,34 @@
 package com.dcris.rpc_v3.server;
 
-import com.dcris.rpc_v1.common.RPCRequest;
+import com.dcris.rpc_v3.common.RPCRequest;
 import com.dcris.rpc_v3.common.RPCResponse;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.concurrent.EventExecutorGroup;
-import jdk.jfr.Frequency;
+import lombok.AllArgsConstructor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class NettyServerHandler extends SimpleChannelInboundHandler<RPCRequest> {
+/**
+ * 因为是服务器端，我们知道接受到请求格式是RPCRequest
+ * Object类型也行，强制转型就行
+ */
+@AllArgsConstructor
+public class NettyRPCServerHandler extends SimpleChannelInboundHandler<RPCRequest> {
     private ServiceProvider serviceProvider;
 
-    public NettyServerHandler(ServiceProvider serviceProvider) {
-        this.serviceProvider = serviceProvider;
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RPCRequest msg) throws Exception {
+        //System.out.println(msg);
         RPCResponse response = getResponse(msg);
         ctx.writeAndFlush(response);
+        ctx.close();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
         ctx.close();
     }
 
@@ -30,22 +37,16 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RPCRequest> 
         String interfaceName = request.getInterfaceName();
         // 得到服务端相应服务实现类
         Object service = serviceProvider.getService(interfaceName);
+        // 反射调用方法
+        Method method = null;
         try {
-            // 反射调用方法
-            Method method = service.getClass().getMethod(request.getMethodName(), request.getParamsTypes());
+            method = service.getClass().getMethod(request.getMethodName(), request.getParamsTypes());
             Object invoke = method.invoke(service, request.getParams());
             return RPCResponse.success(invoke);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             System.out.println("方法执行错误");
             return RPCResponse.fail();
         }
-
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
-        ctx.close();
     }
 }

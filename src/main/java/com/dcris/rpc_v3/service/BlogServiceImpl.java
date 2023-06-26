@@ -1,14 +1,13 @@
 package com.dcris.rpc_v3.service;
 
+
 import com.dcris.rpc_v3.common.Blog;
 
-import java.util.Random;
-
 public class BlogServiceImpl implements BlogService {
-
     @Override
     public Blog getBlogById(Integer id) {
-        System.out.println("查询成功，id为" + id);
-        return Blog.builder().id(id).useId(new Random().nextInt()).title("title").build();
+        Blog blog = Blog.builder().id(id).title("我的博客").useId(22).build();
+        System.out.println("客户端查询了"+id+"博客");
+        return blog;
     }
 }

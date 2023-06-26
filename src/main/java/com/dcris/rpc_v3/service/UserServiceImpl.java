@@ -1,21 +1,20 @@
 package com.dcris.rpc_v3.service;
 
-import com.dcris.rpc_v3.common.User;
 
-import java.util.Random;
-import java.util.UUID;
+import com.dcris.rpc_v3.common.User;
 
 public class UserServiceImpl implements UserService {
     @Override
-    public User getUserById(Integer id) {
-        System.out.println("查询成功，id为" + id);
-        return User.builder().id(id).userName(UUID.randomUUID().toString()).sex(new Random().nextBoolean()).build();
+    public User getUserByUserId(Integer id) {
+        // 模拟从数据库中取用户的行为
+        User user = User.builder().id(id).userName("he2121").sex(true).build();
+        System.out.println("客户端查询了"+id+"用户");
+        return user;
     }
 
     @Override
     public Integer insertUserId(User user) {
-        int id = new Random().nextInt();
-        System.out.println("插入成功，id为" + id);
-        return id;
+        System.out.println("插入数据成功："+user);
+        return 1;
     }
 }

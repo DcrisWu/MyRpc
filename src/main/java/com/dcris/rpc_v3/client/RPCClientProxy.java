@@ -1,5 +1,6 @@
 package com.dcris.rpc_v3.client;
 
+
 import com.dcris.rpc_v3.common.RPCRequest;
 import com.dcris.rpc_v3.common.RPCResponse;
 import lombok.AllArgsConstructor;
@@ -8,30 +9,24 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+@AllArgsConstructor
 public class RPCClientProxy implements InvocationHandler {
-    private RPCClient rpcClient;
+    private RPCClient client;
 
-    public RPCClientProxy(RPCClient rpcClient) {
-        this.rpcClient = rpcClient;
-    }
-
+    // jdk 动态代理， 每一次代理对象调用方法，会经过此方法增强（反射获取request对象，socket发送至客户端）
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // request的构建，使用了lombok中的builder，代码简洁
         RPCRequest request = RPCRequest.builder().interfaceName(method.getDeclaringClass().getName())
                 .methodName(method.getName())
-                .paramsTypes(method.getParameterTypes()).params(args).build();
-        RPCResponse response = rpcClient.sendRequest(request);
+                .params(args).paramsTypes(method.getParameterTypes()).build();
+        //数据传输
+        RPCResponse response = client.sendRequest(request);
+        //System.out.println(response);
         return response.getData();
     }
-
-    <T> T getProxy(Class<T> clazz) {
-        /**
-         * @param loader  类加载器
-         * @param interfaces 代理类需要实现的接口列表
-         * @param h  调用处理器，执行目标对象的方法时，会触发事件处理器的方法
-         */
+    <T>T getProxy(Class<T> clazz){
         Object o = Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, this);
-        T o1 = (T) o;
-        return (T) o;
+        return (T)o;
     }
 }
