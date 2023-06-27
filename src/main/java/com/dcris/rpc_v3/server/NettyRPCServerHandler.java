@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 public class NettyRPCServerHandler extends SimpleChannelInboundHandler<RPCRequest> {
     private ServiceProvider serviceProvider;
 
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RPCRequest msg) throws Exception {
         //System.out.println(msg);

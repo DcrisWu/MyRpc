@@ -8,11 +8,11 @@ import java.net.Socket;
  * 这个实现类代表着java原始的BIO监听模式，来一个任务，就new一个线程去处理
  * 处理任务的工作见WorkThread中
  */
-public class SimpleRPCRPCServer implements RPCServer {
+public class SimpleRPCServer implements RPCServer {
     // 存着服务接口名-> service对象的map
     private ServiceProvider serviceProvider;
 
-    public SimpleRPCRPCServer(ServiceProvider serviceProvide){
+    public SimpleRPCServer(ServiceProvider serviceProvide){
         this.serviceProvider = serviceProvide;
     }
 
